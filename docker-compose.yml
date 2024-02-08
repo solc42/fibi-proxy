@@ -1,0 +1,14 @@
+version: "3.4"
+
+services:
+  fibi-proxy-app:
+    build:
+      dockerfile: ./Dockerfile
+    ports:
+      - "9002:9002"
+    command: "-l 0.0.0.0:9002 -w any -d info"
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_SPANTRACE=1
+      - RUST_LIB_BACKTRACE=1
+

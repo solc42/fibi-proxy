@@ -1,0 +1,45 @@
+Usage: fibi-proxy [OPTIONS]
+
+Options:
+  -l, --lsn-addr <LSN_ADDR>
+          listen addr
+          
+          [default: 127.0.0.1:9002]
+
+  -L, --log-style <LOG_STYLE>
+          log style format
+          
+          [default: pretty]
+
+          Possible values:
+          - compact: [alias: c]
+            each line contains full event description
+          - pretty:  [alias: p]
+            multiline event description with context, line numbers etc
+
+  -d, --debug_lvl <LOG_LEVEL>
+          log verbosity level
+          
+          [default: WARN]
+
+  -m, --relay-mode <MODE>
+          relay mode
+
+          Possible values:
+          - inplace-add: [alias: ia]
+            inplace data modification, by add/sub some byte modifier value u8 with overflow
+            stupid as hell
+
+  -r, --relay-to-addr <RELAY_TO_ADDR>
+          in relay mode spcifies remote proxy addr in form "host:port"
+          e.g.: 192.168.1.1:1234
+
+  -w, --ip-whitelist <IP_WHITELIST>
+          coma separated list of ipv4 to be treated as whitelist
+          any - to allow all
+          localhost/127.0.0.1 - to allow localhost
+          if nothing specified - only localhost will be allowed
+          e.g.: 192.168.0.1,192.168.0.2
+
+  -h, --help
+          Print help (see a summary with '-h')
