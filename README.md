@@ -1,4 +1,4 @@
-![](https://github.com/solc42/fibi-proxy/actions/workflows/rust.yml/badge.svg)
+![](https://github.com/solc42/fibi-proxy/actions/workflows/build_n_test.yml/badge.svg)
 
 # Disclaimer
 This project's main purpose is to get hands dirty with rust myself, its tooling and libraries. Thus, there may be (and definitely will be) crutches, todos, nonoptimal/nonidiomatic code. Those are the goals to work on, along with the application itself. Application is not meant to be used by anyone.

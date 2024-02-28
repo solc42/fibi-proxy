@@ -1,12 +1,12 @@
-alias cov := coverage-md-print
-alias cc := coverage-md-print
-
-alias cov-html := coverage-html
-alias cc-html := coverage-html
+alias cc := coverage
+alias cc-txt := coverage-txt
+alias cc-html := coverage-html-open
 
 alias b := build
 alias br := build-release
 alias bp := build-release
+
+alias c := clippy
 
 alias t := test
 alias tv := test-no-capture
@@ -21,29 +21,31 @@ build:
 
 test:
 	cargo test 
+clippy:
+	cargo clippy
 
 test-no-capture:
 	cargo test -- --nocapture
 
 
-# potential prerequisites:
-#  cargo install grcov
+# potential prerequisites for local run:
+#  cargo +stable install cargo-llvm-cov --locked
 #  rustup component add llvm-tools-preview
-coverage-md-html:
-	rm -rf ./target/coverage_profile
-	rm -rf ./target/coverage
-	mkdir -p ./target/coverage
-	CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' LLVM_PROFILE_FILE='target/coverage_profile/cargo-test-%p-%m.profraw' cargo test
-	grcov ./target/coverage_profile/ --binary-path ./target/debug/deps/ --source-dir . --output-types markdown,html --branch --keep-only 'src/*' -o target/coverage/
-	tree ./target/coverage
+coverage-clean-def:
+	rm -rf target/llvm-cov-target
 
-coverage-md-print: coverage-md-html
-	cat ./target/coverage/markdown.md
+coverage: coverage-clean-def
+	cargo llvm-cov --summary-only
 
-#TODO: open file via borwser in linux/macos way?
-coverage-html: coverage-md-html
-	open ./target/coverage/html/index.html
+coverage-html-open: coverage-clean-def
+	rm -rf target/llvm-cov-target
+	cargo llvm-cov --html --open
+
+coverage-txt: coverage-clean-def
+	rm -rf target/llvm-cov-target
+	cargo llvm-cov --text
 	
 docker-compose-up:
 	docker-compose up -d
 	docker-compose ps
+
