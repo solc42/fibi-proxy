@@ -34,7 +34,7 @@ coverage-md-html:
 	rm -rf ./target/coverage
 	mkdir -p ./target/coverage
 	CARGO_INCREMENTAL=0 RUSTFLAGS='-Cinstrument-coverage' LLVM_PROFILE_FILE='target/coverage_profile/cargo-test-%p-%m.profraw' cargo test
-	grcov ./target/coverage_profile/ --binary-path ./target/debug/deps/ --source-dir . --output-types markdown,html --branch --ignore '*registry*' --ignore '*rustup*' --ignore "/*" -o target/coverage/
+	grcov ./target/coverage_profile/ --binary-path ./target/debug/deps/ --source-dir . --output-types markdown,html --branch --keep-only 'src/*' -o target/coverage/
 	tree ./target/coverage
 
 coverage-md-print: coverage-md-html
