@@ -1,4 +1,5 @@
 ![](https://github.com/solc42/fibi-proxy/actions/workflows/build_n_test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/solc42/fibi-proxy/graph/badge.svg?token=2L206M4Z8M)](https://codecov.io/gh/solc42/fibi-proxy)
 
 # Disclaimer
 This project's main purpose is to get hands dirty with rust myself, its tooling and libraries. Thus, there may be (and definitely will be) crutches, todos, nonoptimal/nonidiomatic code. Those are the goals to work on, along with the application itself. Application is not meant to be used by anyone.
