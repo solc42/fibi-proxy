@@ -11,6 +11,7 @@ alias bp := build-release
 alias t := test
 alias tv := test-no-capture
 
+alias dup := docker-compose-up
 
 build-release:
 	cargo build --profile release
@@ -43,4 +44,6 @@ coverage-md-print: coverage-md-html
 coverage-html: coverage-md-html
 	open ./target/coverage/html/index.html
 	
-	
+docker-compose-up:
+	docker-compose up -d
+	docker-compose ps
