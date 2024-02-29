@@ -1,0 +1,20 @@
+{
+    "workbench.colorCustomizations": {
+        "diffEditor.renderSideBySide": false,
+        "java.semanticHighlighting.enabled": true,
+        "editor.renderWhitespace": "all",
+        "editor.background": "#2b2b2b",
+        "editor.selectionBackground": "#193452",
+        "editor.selectionHighlightBackground": "#135564",
+        "statusBar.border": "#101010",
+        "editorInlayHint.background": "#333333",
+        "editorInlayHint.foreground": "#686868",
+        "breadcrumb.foreground": "#adadadb5",
+        "breadcrumb.background": "#414141",
+        "breadcrumb.focusForeground": "#71b3b6",
+        "breadcrumb.activeSelectionForeground": "#8ee2e6",
+        "breadcrumbPicker.background": "#333333",
+        "editorHoverWidget.foreground": "#a9b7c6",
+        "editorHoverWidget.background": "#252525"
+    }
+}

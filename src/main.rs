@@ -1,17 +1,11 @@
-use std::{
-    collections::HashSet,
-    net::{Ipv4Addr, SocketAddr},
-};
-
-use srv::server::Server;
-
-use clap::{Args, Parser, ValueEnum};
+use clap::Parser as _;
+use cli::{AppArgs, LogStyle};
 use color_eyre::Result;
-use strum_macros::{Display, EnumString};
-use tracing::Level;
+use srv::server::Server;
 use tracing_error::ErrorLayer;
 use tracing_subscriber::layer::SubscriberExt;
 
+mod cli;
 mod commands;
 mod srv;
 
@@ -20,7 +14,7 @@ async fn main() -> Result<()> {
     let args = AppArgs::parse();
 
     init_logs(&args);
-    Server::new_wl(
+    Server::new(
         args.lsn_addr,
         args.relay_opts,
         args.ip_whitelist.unwrap_or_default(),
@@ -30,117 +24,6 @@ async fn main() -> Result<()> {
     .await?;
 
     Ok(())
-}
-
-#[derive(Parser, Debug)]
-struct AppArgs {
-    /// listen addr
-    #[arg(
-        short = 'l',
-        long,
-        default_value = "127.0.0.1:9002",
-        verbatim_doc_comment
-    )]
-    lsn_addr: SocketAddr,
-
-    /// log style format
-    #[arg(
-        short = 'L',
-        long = "log-style",
-        default_value_t = LogStyle::Pretty,
-    )]
-    log_style: LogStyle,
-
-    /// log verbosity level
-    #[arg(short = 'd', long="debug_lvl", default_value_t = Level::WARN)]
-    log_level: Level,
-
-    #[command(flatten)]
-    relay_opts: Option<Relay>,
-
-    /// coma separated list of ipv4 to be treated as whitelist
-    /// any - to allow all
-    /// localhost/127.0.0.1 - to allow localhost
-    /// if nothing specified - only localhost will be allowed
-    /// e.g.: 192.168.0.1,192.168.0.2
-    #[arg(short = 'w', long, verbatim_doc_comment, value_parser = whitelist_parser)]
-    ip_whitelist: Option<WhiteList>,
-}
-
-#[derive(Args, Debug, Clone)]
-#[group(required = false, multiple = true)]
-pub struct Relay {
-    /// relay mode
-    #[arg(short, long = "relay-mode", verbatim_doc_comment)]
-    mode: Option<DataModificationType>,
-
-    /// in relay mode spcifies remote proxy addr in form "host:port"
-    /// e.g.: 192.168.1.1:1234
-    #[arg(short, long = "relay-to-addr", verbatim_doc_comment)]
-    relay_to_addr: Option<SocketAddr>,
-}
-
-#[derive(ValueEnum, EnumString, Clone, Debug, Display)]
-#[strum(serialize_all = "kebab_case")]
-pub enum DataModificationType {
-    ///[alias: ia]
-    /// inplace data modification, by add/sub some byte modifier value u8 with overflow
-    /// stupid as hell
-    #[value(alias = "ia", verbatim_doc_comment)]
-    InplaceAdd, //TODO: add customizable modificator value
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
-pub enum WhiteList {
-    Ips(HashSet<Ipv4Addr>),
-    Any,
-    #[default]
-    Localhost,
-}
-
-impl TryFrom<&str> for WhiteList {
-    type Error = String;
-    fn try_from(value: &str) -> std::result::Result<Self, String> {
-        if value == "any" {
-            return Ok(WhiteList::Any);
-        }
-
-        if value == "localhost" {
-            return Ok(WhiteList::Localhost);
-        }
-
-        let res: Result<HashSet<Ipv4Addr>, String> = value
-            .split(',')
-            .map(|it| {
-                it.trim()
-                    .parse()
-                    .map_err(|c| format!("Failed to parse ip from string. Details: {}", c))
-            })
-            .collect();
-
-        let ips = res?;
-
-        Ok(WhiteList::Ips(ips))
-    }
-}
-
-fn whitelist_parser(src: &str) -> Result<WhiteList, String> {
-    let res = WhiteList::try_from(src)?;
-    Ok(res)
-}
-
-#[derive(ValueEnum, Clone, Debug, Display, EnumString)]
-#[strum(serialize_all = "snake_case")]
-enum LogStyle {
-    /// [alias: c]
-    /// each line contains full event description
-    #[value(alias = "c", verbatim_doc_comment)]
-    Compact,
-
-    /// [alias: p]
-    /// multiline event description with context, line numbers etc
-    #[value(alias = "p", verbatim_doc_comment)]
-    Pretty,
 }
 
 fn init_logs(args: &AppArgs) {
@@ -175,7 +58,7 @@ fn init_logs(args: &AppArgs) {
 mod tests {
     use std::{collections::HashSet, net::Ipv4Addr};
 
-    use crate::WhiteList;
+    use crate::cli::WhiteList;
 
     #[test]
     fn test_whitelist_try_parse() {

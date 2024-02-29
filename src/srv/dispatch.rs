@@ -8,11 +8,10 @@ use thiserror::Error;
 use tokio::{io::AsyncReadExt, net::TcpStream};
 use tracing::{event, Level};
 
+use crate::cli::{DataModificationType, Relay};
 use crate::commands::relay::inplace_add;
-use crate::{commands::*, DataModificationType};
 
-use crate::commands::ServerScenario;
-use crate::Relay;
+use crate::commands::{connect_vanilla, relayed_inplace_add, ServerScenario};
 
 use super::server::Conversion;
 

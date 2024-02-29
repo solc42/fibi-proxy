@@ -53,7 +53,7 @@ One can find at [CLI help test scenario](/tests/cli_args_data/stdout_help_long.t
 
 # TODO(in any order)
 ## Testing
-- Move proxy ["integrational" tests](/src/srv/server.rs) to real SSL server from the current tcp-stubs. Seems [hyper server example](https://github.com/rustls/hyper-rustls/blob/main/examples/server.rs) is enough for testing purposes.
+- [DONE] ~~Move proxy ["integrational" tests](/src/srv/server.rs) to real SSL server from the current tcp-stubs. Seems [hyper server example](https://github.com/rustls/hyper-rustls/blob/main/examples/server.rs) is enough for testing purposes.~~
 
 - Figure out some libraries that respect the SSL connect tunnel-based proxy and not the MitM proxy for reducing dependency from system curl at [server.rs](/src/srv/server.rs)
 

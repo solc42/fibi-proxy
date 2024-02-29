@@ -5,11 +5,11 @@ use tokio::net::TcpStream;
 
 use tracing::{event, Level};
 
+use crate::cli::{DataModificationType, Relay};
 use crate::commands::converters::AddOverflow;
 use crate::commands::{http_ok_to_client, mutual_transfer_with_conv, HTTP_200_OK_CRLN_CRLN};
 use crate::srv::dispatch::{H_CONVERSION_TYPE, H_INPLACE_MOD};
 use crate::srv::server::RWDirectedPair;
-use crate::{DataModificationType, Relay};
 
 //TODO: make configurable via cli
 const INPLACE_CONVERSION_A: u8 = 77;
