@@ -21,7 +21,8 @@ use tokio::{
 use tracing::{warn_span, Instrument as _, Level};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::layer::SubscriberExt;
-use xshell::{cmd, Shell};
+
+use pretty_assertions::assert_eq;
 
 use pretty_hex::pretty_hex;
 
@@ -57,36 +58,32 @@ async fn test_is_wl_allowed_when_explicit_wl() {
 
 /**
  * General scenario: proxy https query based on CONNECT header
- *
- * NOTE: why curl instead of reqwest or isahc rust lib?
- * reqest and isahc https scenario is nontransparent https mitm proxy scenario, not the
- * transparent tunnel based on CONNECT
- * Mb they can be configured somehow - need to investigate later.
  */
 #[tokio::test]
-async fn test_server_proxy_via_curl_to_https() {
+async fn test_server_proxy_to_https() {
     let (proxy_port, _) = start_proxy().await;
 
     //TODO: mb wrapper to obtain listened port after bind stage?
     let https_srv_port = 50000;
     let jh_ssl_srv = spawn(hyper_ssl_srv_example::run_for_one_request(https_srv_port));
 
-    let jh_curl = tokio::task::spawn_blocking(move || {
-        let sh = Shell::new().unwrap();
-        let url = format!("https://127.0.0.1:{https_srv_port}");
-        let proxy_port = proxy_port.to_string();
-        let cmd = cmd!(
-            sh,
-            "curl -k -s --max-time 3 -x 127.0.0.1:{proxy_port} {url}"
-        );
-
-        cmd.read().unwrap()
-    });
+    let jh_client = spawn(
+        reqwest::Client::builder()
+            .proxy(reqwest::Proxy::https(format!("http://localhost:{proxy_port}")).unwrap())
+            .danger_accept_invalid_certs(true)
+            .build()
+            .unwrap()
+            .get(format!("https://localhost:{https_srv_port}"))
+            .send()
+            .await
+            .unwrap()
+            .bytes(),
+    );
 
     jh_ssl_srv.await.unwrap().unwrap();
 
-    let curl_answer = jh_curl.await.unwrap();
-    assert_eq!(curl_answer, "stub answer from ssl serv".to_owned());
+    let srv_answer = jh_client.await.unwrap().unwrap();
+    assert_eq!(srv_answer, "stub answer from ssl serv\n".to_owned());
 }
 
 /**
@@ -186,22 +183,23 @@ async fn test_server_proxy_n_relay_proxy_combo() {
     let https_srv_port = 50001;
     let jh_ssl_srv = spawn(hyper_ssl_srv_example::run_for_one_request(https_srv_port));
 
-    let jh_curl = tokio::task::spawn_blocking(move || {
-        let sh = Shell::new().unwrap();
-        let url = format!("https://127.0.0.1:{https_srv_port}");
-        let relay_proxy_port = relay_proxy_port.to_string();
-        let cmd = cmd!(
-            sh,
-            "curl -k -s --max-time 3 -x 127.0.0.1:{relay_proxy_port} {url}"
-        );
-
-        cmd.read().unwrap()
-    });
+    let jh_client = spawn(
+        reqwest::Client::builder()
+            .proxy(reqwest::Proxy::https(format!("http://localhost:{relay_proxy_port}")).unwrap())
+            .danger_accept_invalid_certs(true)
+            .build()
+            .unwrap()
+            .get(format!("https://localhost:{https_srv_port}"))
+            .send()
+            .await
+            .unwrap()
+            .bytes(),
+    );
 
     jh_ssl_srv.await.unwrap().unwrap();
 
-    let curl_answer = jh_curl.await.unwrap();
-    assert_eq!(curl_answer, "stub answer from ssl serv".to_owned());
+    let srv_answer = jh_client.await.unwrap().unwrap();
+    assert_eq!(srv_answer, "stub answer from ssl serv\n".to_owned());
 }
 
 struct NaiveRwServer {

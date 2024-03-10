@@ -106,7 +106,7 @@ impl Server {
             .await
             .with_context(|| "Scenario execution failed")?;
 
-        event!(Level::DEBUG, "Disconnecting");
+        event!(Level::DEBUG, "Disconnecting client");
 
         Ok(())
     }
